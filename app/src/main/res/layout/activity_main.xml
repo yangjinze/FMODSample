@@ -7,10 +7,85 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:id="@+id/tv_pitch_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="音调:"/>
+        <SeekBar
+            android:id="@+id/seekBar_pitch"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/tv_pitch_title"
+            android:layout_toLeftOf="@id/tv_pitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="50"/>
+        <TextView
+            android:id="@+id/tv_pitch"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="50"/>
+    </RelativeLayout>
+
+    <RadioGroup
+        android:id="@+id/rg_model"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/rb_normal"
+            android:checked="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="正常"/>
+
+        <RadioButton
+            android:id="@+id/rb_luoli"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="萝莉"/>
+
+        <RadioButton
+            android:id="@+id/rb_dashu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="大叔"/>
+
+        <RadioButton
+            android:id="@+id/rb_jingsong"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="惊悚"/>
+
+        <RadioButton
+            android:id="@+id/rb_gaoguai"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="搞怪"/>
+
+        <RadioButton
+            android:id="@+id/rb_kongling"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="空灵"/>
+    </RadioGroup>
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="play test"
-        android:onClick="playTest"/>
-
+        android:text="播放"
+        android:onClick="play"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="停止"
+        android:onClick="stop"/>
 </LinearLayout>

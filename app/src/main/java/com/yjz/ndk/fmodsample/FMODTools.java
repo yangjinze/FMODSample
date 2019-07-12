@@ -7,8 +7,9 @@ package com.yjz.ndk.fmodsample;
  */
 public class FMODTools {
 
-    public static native void changeVoice(String filePath, int mode);
+    public static native void play(String filePath, int mode);
 
+    public static native void release();
     static {
         System.loadLibrary("fmodtools");
 
