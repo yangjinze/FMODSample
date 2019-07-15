@@ -1,9 +1,9 @@
 //
 // Created by yjz on 2019/6/29 0029.
 //#include "fmod.hpp"
-#include "inc/fmod.hpp" //TODO 怎么省去inc?
+#include "inc/fmod.hpp"
 #include <jni.h>
-#include <string>       //TODO <>和""差别
+#include <string>
 #include <android/log.h>
 #include <unistd.h>
 #include <locale>
@@ -34,40 +34,33 @@ FMOD::Channel *channel;
 FMOD::DSP *dps;
 
 namespace MyTools {
-    void checkError(FMOD_RESULT result) {//TODO 声明在h文件里？
-        LOGI("%d",result)
-        if (result != FMOD_OK) {
-            //TODO 抛出异常？
-        }
-    }
+
+    bool isPlaying = false;
 
     void checkAndInit() {
-        if (fmodSystem == NULL) {
+        if (!isPlaying) {
             LOGI("%s","checkAndInit")
             //版本
             unsigned int version;
             //创建FMOD::System_Create对象引用
-            FMOD_RESULT result = FMOD::System_Create(&fmodSystem);
-            MyTools::checkError(result);
+            FMOD::System_Create(&fmodSystem);
 
             LOGI("%s","getVersion")
-            result = fmodSystem -> getVersion(&version);
-            MyTools::checkError(result);
+            fmodSystem -> getVersion(&version);
             if (version < FMOD_VERSION) {
                 LOGE("%s","FMOD lib version  doesn't match header version ")
-//        LOGE("%s","FMOD lib version %08x doesn't match header version %08x", version, FMOD_VERSION)//TODO 这种日志怎么打印
                 return;
             }
 
             LOGI("%s","init")
             //初始化
-            result = fmodSystem->init(32, FMOD_INIT_NORMAL, NULL);
-            MyTools::checkError(result);
+            fmodSystem->init(32, FMOD_INIT_NORMAL, NULL);
+            isPlaying = true;
         }
     }
 
     void release() {
-        if (fmodSystem != NULL) {
+        if (isPlaying) {
             LOGI("%s", "release")
             //释放资源
             sound -> release();
@@ -76,20 +69,15 @@ namespace MyTools {
             sound = NULL;
             channel = NULL;
             dps = NULL;
+            isPlaying = false;
         }
     }
 }
 
-
-
-
-extern "C"  //TODO 啥意思
+extern "C"
 JNIEXPORT void Java_com_yjz_ndk_fmodsample_FMODTools_play(JNIEnv *jniEnv, jclass type, jstring filePath_,
-                                                                 jint mode) {
-
-    LOGI("%s","changeVoice start")
-    //速度
-    float frequency;
+                                                                 jint mode, jobject playListener) {
+    LOGI("%s","play start")
     MyTools::checkAndInit();
     LOGI("%s","createSound")
     // 将 jstring转为 char
@@ -101,13 +89,6 @@ JNIEXPORT void Java_com_yjz_ndk_fmodsample_FMODTools_play(JNIEnv *jniEnv, jclass
         case MODE_NORMAL:
             LOGI("%s","MODE_NORMAL")
             fmodSystem ->playSound(sound, NULL, false, &channel);
-            channel -> getFrequency(&frequency);
-  //          LOGI("frequency=%d",frequency)
-//            result = channel -> setFrequency(frequency * 2);
-//
-//            result =  channel -> getFrequency(&frequency);
-//            LOGI("frequency2=%d",frequency)
-//            checkError(result);
             break;
         case MODE_LUOLI:
             LOGI("%s","MODE_LUOLI")
@@ -127,6 +108,8 @@ JNIEXPORT void Java_com_yjz_ndk_fmodsample_FMODTools_play(JNIEnv *jniEnv, jclass
             break;
         case MODE_JINGSONG:
             LOGI("%s","MODE_JINGSONG");
+            //速度
+            float frequency;
             // 设置颤抖
             fmodSystem->createDSPByType(FMOD_DSP_TYPE_TREMOLO, &dps);
             // 设置颤抖的频率
@@ -168,8 +151,20 @@ JNIEXPORT void Java_com_yjz_ndk_fmodsample_FMODTools_play(JNIEnv *jniEnv, jclass
         channel->isPlaying(&isPlaying);
         usleep(1000);
     }
+    MyTools::isPlaying = false;
   //  MyTools::release();
-    LOGI("%s","changeVoice emd")
+    LOGI("%s","play end")
+    jclass  playListenerClass = jniEnv -> GetObjectClass(playListener);
+    if (playListenerClass == NULL) {
+        LOGE("%s","can't find playListener class !!")
+        return;
+    }
+    jmethodID complete = jniEnv -> GetMethodID(playListenerClass, "complete", "()V");
+    if (complete == NULL) {
+        LOGE("%s","can't find complete method !!")
+        return;
+    }
+    jniEnv -> CallVoidMethod(playListener, complete);
 }
 
 extern "C"
